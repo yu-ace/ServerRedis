@@ -1,0 +1,16 @@
+# 配置NETTY配置参数
+Netty:
+   server:
+      inetHost: 127.0.0.1
+      inetPort: 6666
+
+# 计时器设置
+Timer:
+   initialDelay: 0
+   period: 30
+   unit: SECONDS
+
+# 设置
+TotalMemory: 1048576 # 1024*1024
+DataPath: "C:\\Users\\cfcz4\\OneDrive\\Desktop\\data.bin"
+MapPath: "C:\\Users\\cfcz4\\OneDrive\\Desktop\\map.bin"
