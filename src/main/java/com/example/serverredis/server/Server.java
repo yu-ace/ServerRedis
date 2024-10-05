@@ -8,6 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,8 @@ public class Server implements CommandLineRunner {
     @Value("${Timer.unit:MINUTES}")
     private TimeUnit timeUnit;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private static final CommandServer commandServer = CommandServer.getInstance();
+    @Autowired
+    CommandServer commandServer;
 
     @Override
     public void run(String... args) throws Exception {

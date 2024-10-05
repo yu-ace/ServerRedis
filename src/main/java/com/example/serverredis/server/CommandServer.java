@@ -1,6 +1,8 @@
 package com.example.serverredis.server;
 
 import com.example.serverredis.model.Command;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -9,17 +11,15 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
+@Component
 public class CommandServer {
-    private static final CommandServer commandServer = new CommandServer();
     private CommandServer(){
         initializeCommands();
     }
-    public static CommandServer getInstance(){
-        return commandServer;
-    }
 
     private final Map<String, Function<Command, Object>> commandMap = new HashMap<>();
-    private final Memory memory = Memory.getInstance();
+    @Autowired
+    Memory memory;
     public void initializeCommands() {
         commandMap.put("set", this::setKey);
         commandMap.put("get", this::getValue);

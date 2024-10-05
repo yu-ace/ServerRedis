@@ -11,27 +11,22 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Component
 public class Memory {
     Map<String, Record> map;
     ByteBuffer buffer;
     private static final Integer TYPE_INTEGER = 0;
     private static final Integer TYPE_STRING = 1;
-    private static final Memory memory = new Memory();
-    private Memory(){
-    }
-    public static Memory getInstance(){
-        return memory;
-    }
-//    @Value("${TotalMemory:1024*1024}")
-//    private Integer totalMemory;
-//    @Value("${DataPath}")
-//    private String dataPath;
-//    @Value("${MapPath}")
-//    private String mapPath;
+    @Value("${TotalMemory:1024*1024}")
+    private Integer totalMemory;
+    @Value("${DataPath}")
+    private String dataPath;
+    @Value("${MapPath}")
+    private String mapPath;
     public void init() throws Exception {
-        File file = new File("C:\\Users\\cfcz4\\OneDrive\\Desktop\\data.bin");
+        File file = new File(dataPath);
         if(file.exists()){
-            try(RandomAccessFile read = new RandomAccessFile("C:\\Users\\cfcz4\\OneDrive\\Desktop\\data.bin", "rw")) {
+            try(RandomAccessFile read = new RandomAccessFile(dataPath, "rw")) {
                 long length = read.length();
                 buffer = ByteBuffer.allocate((int) length);
                 FileChannel channel = read.getChannel();
@@ -48,11 +43,11 @@ public class Memory {
 //        System.out.println(mapPath);
 //        System.out.println(dataPath);
 //        System.out.println(1);
-        File file = new File("C:\\Users\\cfcz4\\OneDrive\\Desktop\\map.bin");
+        File file = new File(mapPath);
         map = new HashMap<>();
         if(file.exists()){
             try{
-                FileInputStream fileInputStream = new FileInputStream("C:\\Users\\cfcz4\\OneDrive\\Desktop\\map.bin");
+                FileInputStream fileInputStream = new FileInputStream(mapPath);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 map = (Map<String,Record>) objectInputStream.readObject();
             }catch (Exception e){
@@ -62,13 +57,13 @@ public class Memory {
     }
 
     public void saveMap() throws Exception {
-        FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\cfcz4\\OneDrive\\Desktop\\map.bin");
+        FileOutputStream fileOutputStream = new FileOutputStream(mapPath);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
         objectOutputStream.writeObject(map);
     }
 
     public void shutDown() throws Exception{
-        RandomAccessFile file = new RandomAccessFile("C:\\Users\\cfcz4\\OneDrive\\Desktop\\data.bin","rw");
+        RandomAccessFile file = new RandomAccessFile(dataPath,"rw");
         FileChannel channel = file.getChannel();
         buffer.flip();
         buffer.limit(buffer.capacity());
@@ -79,7 +74,7 @@ public class Memory {
     public Object get(String key) {
         Object value;
         if(map.containsKey(key)){
-            buffer.limit(1024*1024);
+            buffer.limit(totalMemory);
             Record record = map.get(key);
             buffer.position(record.getPosition());
             if("String".equals(map.get(key).getType())){
@@ -142,7 +137,7 @@ public class Memory {
         int position = 4 + 8 * size;
         int startPosition;
         if(size == 0){
-            startPosition = 1024*1024 - valurLength;
+            startPosition = totalMemory - valurLength;
         }else {
             buffer.position(position - 8);
             int lastPosition = buffer.getInt();
@@ -233,7 +228,7 @@ public class Memory {
             buffer.position(index);
             int lastStartPosition = buffer.getInt();
             int userHeadPosition = 4 + 8 * size;
-            usedMemory = 1024*1024 - lastStartPosition + userHeadPosition;
+            usedMemory = totalMemory - lastStartPosition + userHeadPosition;
         }else {
             usedMemory = 0;
         }
@@ -241,6 +236,6 @@ public class Memory {
     }
 
     public Integer FreeMemory(){
-        return 1024*1024 - usedMemory();
+        return totalMemory - usedMemory();
     }
 }
